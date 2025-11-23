@@ -48,19 +48,32 @@ void _setup_ota(void)
     M5.Lcd.println(WiFi.SSID());  // Output Network name.  输出网络名称
     M5.Lcd.print("IP: ");
     M5.Lcd.println(WiFi.localIP());  // Output IP Address.  输出IP地址
-	M5.Lcd.print("Hostname:");
-	M5.Lcd.println(REMOTE_HOSTNAME);
 
 	uint8_t baseMac[6];
+	uint32_t bigMacLo;
+	
 	esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
+	
 	if (ret == ESP_OK) {
 	M5.Lcd.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
 				 baseMac[0], baseMac[1], baseMac[2],
 				 baseMac[3], baseMac[4], baseMac[5]);
 	}
-	 
-    ArduinoOTA.setHostname(REMOTE_HOSTNAME);  // Set the network port name.  设置网络端口名称
+	
+	bigMacLo=baseMac[5]       | baseMac[4] <<  8 | 
+			 baseMac[3] << 16 | baseMac[2] << 24 ;
+	
+	char hName[40] = REMOTE_HOSTNAME;
+
+	// overide hostname based on MAC
+	if (bigMacLo == 0x84A7024C ) strcpy (hName, "YELLOW");
+
+    ArduinoOTA.setHostname(hName);  // Set the network port name.  设置网络端口名称
     //ArduinoOTA.setPassword("666666");
+
+	M5.Lcd.print("Hostname:");
+	M5.Lcd.println(hName);
+	M5.Lcd.printf("%08X \n", bigMacLo & 0xFFFFFFFF);
     
     ArduinoOTA.begin();            // Initialize the OTA.  初始化OTA
     M5.Lcd.println("OTA ready!");  // M5.Lcd port output format string.
