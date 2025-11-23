@@ -2,6 +2,11 @@
 #include "freertos/task.h"
 #include "esp_task_wdt.h"
 
+
+
+#pragma message ("NOTE: using esp core wd not RTC wd", __FILE__)
+//#include "rtc_wdt.h"  // the rtc chip has a watchdog but we use espcore wdts
+
 #if 0
 // stop on failure but always report success
 #define ABORT_ON_FAIL(functionCall, expected) ({                \

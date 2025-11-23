@@ -1,9 +1,9 @@
 #include <M5Unified.h>
 #include <FastLED.h>                                                                                                                                                                    
-#include <m5Core2-only.h>
-#include "viewController.h"
-#include "watchdogs.h"
-#include "RTC.h"
+#include "_m5Core2-only.h"
+#include "_viewController.h"
+#include "_watchdogs.h"
+#include "_RTC.h"
 
 #define LEDS_PIN 25
 #define LEDS_NUM 10
@@ -164,7 +164,7 @@ int  _xprintf(uint8_t lineNo, const char *format, ...)
 
 	xSemaphoreTake(displayMutex, portMAX_DELAY);
 
-	lsetTextColor(_WHITE, _BLACK);
+	_lsetTextColor(_WHITE, _BLACK);
 	_lsetCursor(0, lineNo); 
 
 	// time to kill off any chars from old print
@@ -198,7 +198,7 @@ int  _cprintf(uint32_t color, uint8_t lineNo, const char *format, ...)
 
 	xSemaphoreTake(displayMutex, portMAX_DELAY);
 	
-	lsetTextColor(color, _BLACK);
+	_lsetTextColor(color, _BLACK);
 	_lsetCursor(0, lineNo); 
 
 	// time to kill off any chars from old print
@@ -216,7 +216,7 @@ int  _cprintf(uint32_t color, uint8_t lineNo, const char *format, ...)
 	linelen[lineNo] = ll;
 	_lprint(buffer);
 
-	lsetTextColor(_WHITE, _BLACK);
+	_lsetTextColor(_WHITE, _BLACK);
 
 	xSemaphoreGive(displayMutex);	
 	va_end(args);

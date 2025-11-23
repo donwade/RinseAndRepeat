@@ -38,7 +38,7 @@ extern void _runLightBarTask(void *not_used);
 
 void _touchPanel_impl(void);
 void _setup_button(void);
-void button_create(void);
+void _button_create(void);
 
 extern void _showPower(void);
 

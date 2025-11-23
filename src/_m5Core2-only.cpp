@@ -1,6 +1,8 @@
 #include <M5Unified.h>
-#include "m5Core2-only.h"
-#include "viewController.h"
+#include "_m5Core2-only.h"
+#include "_viewController.h"
+
+#include "esp_debug_helpers.h" // not used here but is useful
 
 static uint8_t vert = 0;
 
@@ -57,6 +59,8 @@ void _lclear(void)
 #include <Fonts/FreeMono12pt7b.h>
 
 //--------------------------------------------------
+static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
+#include <SD.h>
 
 void _setup_M5(void)
 {
@@ -68,8 +72,12 @@ void _setup_M5(void)
 
 	// confusing. this sets font for buttons
 	M5.Lcd.setFont(WIDGET_FONT);
+
+	M5.Speaker.setAllChannelVolume(30);
+
+    bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
+	Serial.printf("SD=%d\n", ok);
 	
-	//M5.Speaker.setAllChannelVolume(100);
 	
 	_lfillRect(0, 0, 50, 50, 0x0000FF);
 	delay(2000);
@@ -79,7 +87,7 @@ void _setup_M5(void)
 	_setup_button();
 }
 
-void lsetTextColor(uint32_t FGND, uint32_t BKGND)
+void _lsetTextColor(uint32_t FGND, uint32_t BKGND)
 {
     M5.Lcd.setTextFont(DEFAULT_FONT);
 	//M5.Lcd.setTextColor(FGND);

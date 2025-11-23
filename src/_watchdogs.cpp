@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "watchdogs.h"
+#include "_watchdogs.h"
 
 extern "C" unsigned long millis(void);
 

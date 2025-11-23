@@ -1,7 +1,7 @@
 #include <SD.h>
 #include <M5Unified.h>
-#include "wavePlayer.h"
-#include "watchdogs.h"
+#include "_wavePlayer.h"
+#include "_watchdogs.h"
 #include <cppQueue.h>
 
 #include <esp_log.h>
