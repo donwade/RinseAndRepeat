@@ -1,5 +1,8 @@
 //#define setCursor(...) M5.Lcd.setCursor(__VA_ARGS__)
 //#define print(...) M5.Lcd.print(__VA_ARGS__)
+
+extern void _loop_M5();
+
 extern void _lsetCursor(uint16_t X, uint16_t Y, uint8_t font);
 extern void _lsetCursor(uint16_t X, uint16_t Y);
 extern void _lprint(const __FlashStringHelper *x);

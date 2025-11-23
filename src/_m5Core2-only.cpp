@@ -1,6 +1,8 @@
 #include <M5Unified.h>
 #include "_m5Core2-only.h"
 #include "_viewController.h"
+#include "_OTAUpload.h"
+
 
 #include "esp_debug_helpers.h" // not used here but is useful
 
@@ -62,6 +64,7 @@ void _lclear(void)
 static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
 #include <SD.h>
 
+//-------------------------------------------------------------
 void _setup_M5(void)
 {
 	M5.begin();
@@ -78,14 +81,22 @@ void _setup_M5(void)
     bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
 	Serial.printf("SD=%d\n", ok);
 	
-	
 	_lfillRect(0, 0, 50, 50, 0x0000FF);
 	delay(2000);
 
 	Serial.begin(115200);
-		
+
+	_setup_ota();		
 	_setup_button();
 }
+
+//-------------------------------------------------------------
+void _loop_M5(void)
+{
+	_loop_ota();
+}
+//-------------------------------------------------------------
+
 
 void _lsetTextColor(uint32_t FGND, uint32_t BKGND)
 {
