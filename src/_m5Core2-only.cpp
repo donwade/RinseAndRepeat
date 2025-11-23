@@ -73,7 +73,7 @@ void _setup_M5(void)
 	// confusing. this sets font for buttons
 	M5.Lcd.setFont(WIDGET_FONT);
 
-	M5.Speaker.setAllChannelVolume(30);
+	M5.Speaker.setAllChannelVolume(70);
 
     bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
 	Serial.printf("SD=%d\n", ok);
