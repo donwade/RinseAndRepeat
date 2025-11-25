@@ -67,6 +67,20 @@ static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
 //-------------------------------------------------------------
 void _setup_M5(void)
 {
+	#if defined(ARDUINO_M5STACK_CORES3)
+	
+		//https://github.com/donwade/core2S3-bug-uart-issue
+		//S3 chip JTAG messes up serial port. Tell it to fuck off
+		//If not corrected, 
+		//    1) serial input is rejected as a monitor
+		//    2) future downloads are rejected and your screwed.
+		
+		pinMode(19,INPUT);
+		#pragma warning("protecting USB serial")
+		Serial.begin();
+		Serial.println("CORE2 S3 releasing JTAG for serial");
+	#endif
+
 	M5.begin();
 	M5.Power.setExtOutput(true);  // enable external bus
 
@@ -79,7 +93,7 @@ void _setup_M5(void)
 	M5.Speaker.setAllChannelVolume(70);
 
     bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
-	Serial.printf("SD=%d\n", ok);
+	Serial.printf("SD card is %s READY\n", ok? "NOT":"");
 	
 	_lfillRect(0, 0, 50, 50, 0x0000FF);
 	delay(2000);
@@ -88,6 +102,9 @@ void _setup_M5(void)
 
 	_setup_ota();		
 	_setup_button();
+
+	pinMode(19,INPUT);  // safety . see above.
+
 }
 
 //-------------------------------------------------------------

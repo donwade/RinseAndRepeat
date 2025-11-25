@@ -15,6 +15,16 @@ static SemaphoreHandle_t displayMutex = xSemaphoreCreateMutex();
 static SemaphoreHandle_t keyCountingSemaphore;
 
 static bool bStopToggle = true;
+
+#if defined(ARDUINO_M5STACK_CORE2)
+	#define FASTLED_SHOW FastLED.show()
+#elif defined(ARDUINO_M5STACK_CORES3)
+	#define FASTLED_SHOW  // there is no ledbar on my S3
+#else
+	#error "unsupported processor"
+#endif
+
+
 //------------------------------------------------------
 // make entire LED bar one colour
 void _colourBar(uint8_t R,uint8_t G, uint8_t B) 
@@ -24,7 +34,7 @@ void _colourBar(uint8_t R,uint8_t G, uint8_t B)
 	for (int i = 0; i < LEDS_NUM; i++) {
 		ledsBuff[i].setRGB(G, R, B);
 	}
-	FastLED.show();
+	FASTLED_SHOW;
 }	
 
 //------------------------------------------------------
@@ -41,7 +51,7 @@ void _colourBarX(uint32_t RGB, uint8_t pct)
 	for (int i = 0; i < LEDS_NUM; i++) {
 		ledsBuff[i].setRGB(R, G, B);
 	}
-	FastLED.show();
+	FASTLED_SHOW;
 }	
 //------------------------------------------------------
 // make range of LEDs one color
@@ -54,7 +64,7 @@ void _colourNleds(uint8_t who, uint8_t width, uint8_t R,uint8_t G, uint8_t B)
 	for (int i = who; i < who + width; i++) {
 		ledsBuff[i].setRGB(R, G, B);
 	}
-	FastLED.show();
+	FASTLED_SHOW;
 }	
 //------------------------------------------------------
 // make entire LED bar one colour
@@ -79,7 +89,7 @@ static void _toggleLeftRight(uint32_t RGB_LEFT, uint32_t RGB_RIGHT)
 		ledsBuff[i].setRGB(R, G, B);
 	}
 
-	FastLED.show();
+	FASTLED_SHOW;
 }	
 
 
@@ -345,7 +355,9 @@ BUTTON_EVENT _button_pop(uint32_t maxWaitMs)
 void _setup_button()
 {
 
+#if defined(ARDUINO_M5STACK_CORE2)
 	FastLED.addLeds<SK6812, LEDS_PIN>(ledsBuff, LEDS_NUM);	
+#endif
 
 	keyCountingSemaphore = xSemaphoreCreateCounting(MAX_KEYS_QUEUED,0);
 

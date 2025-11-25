@@ -21,9 +21,9 @@
     #define REMOTE_HOSTNAME "NEED-DNS"
 #endif
 
-#if 0
-const char* ssid     = "M5wifi";
-const char* password = "21213123";
+#if !defined(MY_SSID)
+const char* ssid     = "ignite wifi";
+const char* password = "DEADBEEF04";
 #else
 static const char* ssid     = MY_SSID;
 static const char* password = MY_SSID_PASSWORD;
@@ -35,17 +35,17 @@ void _setup_ota(void)
 {
     // done elsewhere  M5.begin();
 
+    M5.Lcd.printf("SSID %s\n", ssid);
     WiFi.begin(ssid, password);  // Connect wifi and return connection status.
 
-    M5.Lcd.print("Waiting 4 Wifi");
     while (WiFi.status() != WL_CONNECTED) {
             delay(1000);
         M5.Lcd.print(".");
     }
     
-    M5.Lcd.println();
-    M5.Lcd.print("Online:");
-    M5.Lcd.println(WiFi.SSID());  // Output Network name.  输出网络名称
+    //M5.Lcd.println();
+    //M5.Lcd.print("Online:");
+    //M5.Lcd.println(WiFi.SSID());  // Output Network name.  输出网络名称
     M5.Lcd.print("IP: ");
     M5.Lcd.println(WiFi.localIP());  // Output IP Address.  输出IP地址
 
@@ -63,10 +63,11 @@ void _setup_ota(void)
 	bigMacLo=baseMac[5]       | baseMac[4] <<  8 | 
 			 baseMac[3] << 16 | baseMac[2] << 24 ;
 	
-	char hName[40] = REMOTE_HOSTNAME;
+	char hName[40] = "UNKNOWN"; //REMOTE_HOSTNAME;
 
 	// overide hostname based on MAC
 	if (bigMacLo == 0x84A7024C ) strcpy (hName, "YELLOW");
+	if (bigMacLo == 0xA0D4CB8C ) strcpy (hName, "BLACK");
 
     ArduinoOTA.setHostname(hName);  // Set the network port name.  设置网络端口名称
     //ArduinoOTA.setPassword("666666");

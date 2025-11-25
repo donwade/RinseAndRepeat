@@ -192,8 +192,10 @@ void _wavPlayerTask(void *NOTUSED)
 			_playWavFromSD(playThisFile);
 		}
 		else
+		{
 			_kickDog();
 			delay(1);
+		}
 	}
 }
 
