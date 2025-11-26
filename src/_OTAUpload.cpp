@@ -74,7 +74,6 @@ void _setup_ota(void)
 
 	M5.Lcd.print("Hostname:");
 	M5.Lcd.println(hName);
-	M5.Lcd.printf("%08X \n", bigMacLo & 0xFFFFFFFF);
     
     ArduinoOTA.begin();            // Initialize the OTA.  初始化OTA
     M5.Lcd.println("OTA ready!");  // M5.Lcd port output format string.

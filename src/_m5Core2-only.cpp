@@ -2,7 +2,7 @@
 #include "_m5Core2-only.h"
 #include "_viewController.h"
 #include "_OTAUpload.h"
-
+#include "_RTC.h"
 
 #include "esp_debug_helpers.h" // not used here but is useful
 
@@ -67,6 +67,8 @@ static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
 //-------------------------------------------------------------
 void _setup_M5(void)
 {
+	Serial.begin(115200);
+
 	#if defined(ARDUINO_M5STACK_CORES3)
 	
 		//https://github.com/donwade/core2S3-bug-uart-issue
@@ -77,7 +79,6 @@ void _setup_M5(void)
 		
 		pinMode(19,INPUT);
 		#pragma warning("protecting USB serial")
-		Serial.begin();
 		Serial.println("CORE2 S3 releasing JTAG for serial");
 	#endif
 
@@ -92,14 +93,15 @@ void _setup_M5(void)
 
 	M5.Speaker.setAllChannelVolume(70);
 
+
     bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
 	Serial.printf("SD card is %s READY\n", ok? "NOT":"");
 	
 	_lfillRect(0, 0, 50, 50, 0x0000FF);
 	delay(2000);
 
-	Serial.begin(115200);
 
+	_setup_RTC();
 	_setup_ota();		
 	_setup_button();
 

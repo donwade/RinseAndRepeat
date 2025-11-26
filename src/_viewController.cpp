@@ -256,7 +256,7 @@ void _showPower(void)
 {
 	static uint8_t flipper;
 	
-	if (flipper++ & 0x10)
+	if (flipper++ & 0x8)
 	{
 		bool isCharging = M5.Power.isCharging();
 		int percent = M5.Power.getBatteryVoltage() * 100/ 3700; // 3.7 v bat max
@@ -271,7 +271,7 @@ void _showPower(void)
 	}
 	else
 	{
-		_cprintf(_YELLOW, 6, "%s", format_date_time());
+		_cprintf(_YELLOW, 6, "%s", pDateTimeString());
 	}
 }	
 

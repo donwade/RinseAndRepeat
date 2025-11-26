@@ -1,5 +1,5 @@
 extern uint32_t _getUTCfromRTC();
-extern void  _setRTC(uint8_t hr, uint8_t min, uint8_t sec, uint8_t day, uint8_t month, uint16_t year);
-extern char *format_date_time();
+extern char *pDateTimeString();
+void _setup_RTC(void);
 
 
