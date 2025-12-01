@@ -118,8 +118,6 @@ void _setup_M5(void)
 	_setup_ota();		
 	_setup_button();
 
-	pinMode(19,INPUT);  // safety . see above.
-
 }
 
 //-------------------------------------------------------------

@@ -69,14 +69,14 @@ void _setup_ota(void)
 	if (bigMacLo == 0x84A7024C ) strcpy (hName, "YELLOW");
 	if (bigMacLo == 0xA0D4CB8C ) strcpy (hName, "BLACK");
 
-    ArduinoOTA.setHostname(hName);  // Set the network port name.  设置网络端口名称
+    ArduinoOTA.setHostname(hName);
     //ArduinoOTA.setPassword("666666");
 
 	M5.Lcd.print("Hostname:");
 	M5.Lcd.println(hName);
     
-    ArduinoOTA.begin();            // Initialize the OTA.  初始化OTA
-    M5.Lcd.println("OTA ready!");  // M5.Lcd port output format string.
+    ArduinoOTA.begin();
+    //M5.Lcd.println("OTA ready!");
 }
 
 void _loop_ota(void) 
