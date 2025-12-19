@@ -53,7 +53,9 @@ void _setup_ota(void)
 	uint32_t bigMacLo;
 	
 	esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
-	
+
+    M5.Lcd.printf("BUILT: %s %s\n", __DATE__,__TIME__);
+
 	if (ret == ESP_OK) {
 	M5.Lcd.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
 				 baseMac[0], baseMac[1], baseMac[2],

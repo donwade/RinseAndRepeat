@@ -66,6 +66,7 @@ void _lprintln(char *x)
 void _lclear(void)
 {
 	M5.Lcd.clear();
+	M5.Lcd.display();
 }
 //--------------------------------------------------
 #include <Adafruit_GFX.h>    // Core graphics library
@@ -109,14 +110,15 @@ void _setup_M5(void)
 
     bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
 	Serial.printf("SD card is %s READY\n", ok? "NOT":"");
-	
+
+
 	_lfillRect(0, 0, 50, 50, 0x0000FF);
 	delay(2000);
 
 
 	_setup_RTC();
 	_setup_ota();		
-	_setup_button();
+	//_setup_button();
 
 }
 
