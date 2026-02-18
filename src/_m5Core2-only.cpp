@@ -81,20 +81,7 @@ static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
 //-------------------------------------------------------------
 void _setup_M5(void)
 {
-	Serial.begin(115200);
-
-	#if defined(ARDUINO_M5STACK_CORES3)
-	
-		//https://github.com/donwade/core2S3-bug-uart-issue
-		//S3 chip JTAG messes up serial port. Tell it to fuck off
-		//If not corrected, 
-		//    1) serial input is rejected as a monitor
-		//    2) future downloads are rejected and your screwed.
-		
-		pinMode(19,INPUT);
-		#pragma warning("protecting USB serial")
-		Serial.println("CORE2 S3 releasing JTAG for serial");
-	#endif
+	if (!Serial) Serial.begin(115200);
 
 	M5.begin();
 	M5.Power.setExtOutput(true);  // enable external bus
