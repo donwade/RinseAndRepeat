@@ -148,6 +148,28 @@ void _runLightBarTask(void *not_used)
 	_Tdelay(500);
 }
 //-------------------------------------------------------------
+void _setup_lightbar(void)
+{
+	static bool bInit = false;
+	if (bInit == false)
+	{
+		bInit = true;
+		#if defined(ARDUINO_M5STACK_CORE2)
+			FastLED.addLeds<SK6812, LEDS_PIN>(ledsBuff, LEDS_NUM);	
+			FastLED.setBrightness(50); // 0-255
+			Serial.printf("%s: taking GPIO%d  !!!!\n",__FUNCTION__, LEDS_PIN);
+			_setToggleColors(_RED, _BLUE, 50);
+			
+		    _spawnTaskAndDogV2( _runLightBarTask, //(void * not_used)TaskFunction_
+		                      "LightBarTask",    //const char * const pcName,
+		                      1024 * 8,          //const uint32_t usStackDepth,
+		                      NULL,              //void * const pvParameters,
+		                      4              //UBaseType_t uxPriority)
+		                      );
+		#endif
+    }
+}
+//-------------------------------------------------------------
 void _lfillRect(uint16_t x, uint16_t y, uint16_t wide, uint16_t height, uint32_t RGB)
 {
 	xSemaphoreTake(displayMutex, portMAX_DELAY);
@@ -354,11 +376,7 @@ BUTTON_EVENT _button_pop(uint32_t maxWaitMs)
 
 void _setup_button()
 {
-
-#if defined(ARDUINO_M5STACK_CORE2)
-	FastLED.addLeds<SK6812, LEDS_PIN>(ledsBuff, LEDS_NUM);	
-#endif
-
+	Serial.printf("need lightbar? call _setup_lightbar (gpio25 warning)\n");
 	keyCountingSemaphore = xSemaphoreCreateCounting(MAX_KEYS_QUEUED,0);
 
 	phyDispWidth = M5.Lcd.width();

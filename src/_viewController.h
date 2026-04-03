@@ -34,6 +34,8 @@ extern int  _xprintf(uint8_t lineNo, const char *format, ...);
 extern int  _cprintf(uint32_t color, uint8_t lineNo, const char *format, ...);
 extern void _lfillRect(uint16_t x, uint16_t y, uint16_t wide, uint16_t height, uint32_t RGB);
 
+extern void _setup_lightbar();
+
 extern void _runLightBarTask(void *not_used);
 
 void _touchPanel_impl(void);
