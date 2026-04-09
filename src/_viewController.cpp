@@ -16,9 +16,11 @@ static SemaphoreHandle_t keyCountingSemaphore;
 
 static bool bStopToggle = true;
 
-#if defined(ARDUINO_M5STACK_CORE2)
+//            arduino                            platformio
+#if defined(ARDUINO_M5STACK_CORE2) || defined(ARDUINO_M5STACK_Core2)
 	#define FASTLED_SHOW FastLED.show()
-#elif defined(ARDUINO_M5STACK_CORES3)
+//            arduino                            platformio
+#elif defined(ARDUINO_M5STACK_CORES3) || defined(ARDUINO_M5STACK_CoreS3)
 	#define FASTLED_SHOW  // there is no ledbar on my S3
 #else
 	#error "unsupported processor"

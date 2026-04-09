@@ -10,7 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "esp_err.h"
+#include "esp_task_wdt.h"
 #include "_watchdogs.h"
 
 extern "C" unsigned long millis(void);
@@ -24,7 +25,7 @@ extern "C" unsigned long millis(void);
 
 void _setup_watchdogs(void)
 {
-
+#if !defined(ARDUINO_M5STACK_Core2) //plaformio io would define this 
 	// Configure the Task Watchdog Timer
 	esp_task_wdt_config_t twdt_config = {
 		.timeout_ms = 5000, // Set timeout to 5 seconds
@@ -34,7 +35,9 @@ void _setup_watchdogs(void)
 
     // Initialize the TWDT with the specified configuration
     ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
-
+#else
+    #pragma message ("NOTE: PLATFORMIO does not compile")
+#endif
 }
 
 //-------------------------------------------------------------------------

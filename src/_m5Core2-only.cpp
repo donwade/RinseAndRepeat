@@ -69,7 +69,11 @@ void _lclear(void)
 	M5.Lcd.display();
 }
 //--------------------------------------------------
-#include <Adafruit_GFX.h>    // Core graphics library
+#ifdef ARDUINO_M5STACK_Core2
+   #include <M5GFX.h>
+#else
+   #include <Adafruit_GFX.h>    // Core graphics library
+#endif
 // below must follow above
 #include <Fonts/FreeMonoBoldOblique12pt7b.h>
 #include <Fonts/FreeMono12pt7b.h>
@@ -81,7 +85,7 @@ static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
 //-------------------------------------------------------------
 void _setup_M5(void)
 {
-	if (!Serial) Serial.begin(115200);
+	if (!Serial) Serial.begin(921600);
 
 	M5.begin();
 	M5.Power.setExtOutput(true);  // enable external bus

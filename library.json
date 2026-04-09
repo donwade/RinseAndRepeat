@@ -4,14 +4,14 @@
   "keywords": "rf, radio, wireless, cc1101",
   "authors":
   {
-    "name": "Little Satan"
+    "name": "Don Wade"
   },
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/LSatan/SmartRC-CC1101-Driver-Lib"
+    "url": "https://github.com/donwade/RinseAndRepeat.git"
   },
-  "version": "2.5.7",
+  "version": "1.1.1",
   "frameworks": [
         "arduino"
   ],
