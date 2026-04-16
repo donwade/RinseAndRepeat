@@ -92,8 +92,8 @@ bool _setup_SD(void) // return true = BAD!
 	if (!bInited)
 	{
 		bInited = true;
-		ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
-		Serial.printf(FG_YELLOW "SD card is %s READY\n", ok ? "NOT":"");
+		ok = SD.begin(SDCARD_CSPIN, SPI, 2000000);
+		Serial.printf(FG_CYAN "SD card is %s READY\n" FG_DONE, ok ? "" : "NOT");
 	}
 	return ok;
 }
