@@ -16,6 +16,7 @@ extern void _lprintln(char *x);
 extern void _lclear(void);
 extern void _setup_M5(void);
 extern void _lsetTextColor(uint32_t FGND, uint32_t BKGND);
+extern bool _setup_SD(void);
 
 #define WIDGET_FONT  &fonts::FreeMonoBoldOblique12pt7b
 #define DEFAULT_FONT &fonts::FreeMono12pt7b

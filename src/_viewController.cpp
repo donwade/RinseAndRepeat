@@ -31,7 +31,7 @@ static bool bStopToggle = true;
 // make entire LED bar one colour
 void _colourBar(uint8_t R,uint8_t G, uint8_t B) 
 {
-	bStopToggle = true;
+	bStopLedBarToggle = true;
 	
 	for (int i = 0; i < LEDS_NUM; i++) {
 		ledsBuff[i].setRGB(G, R, B);
@@ -44,6 +44,9 @@ void _colourBar(uint8_t R,uint8_t G, uint8_t B)
 void _colourBarX(uint32_t RGB, uint8_t pct) 
 {
 	uint16_t R,G,B;
+
+	bStopLedBarToggle = true;
+	
 	G = ((RGB >> 16) & 0xFF) * pct /100;
 	R = ((RGB >>  8) & 0xFF) * pct /100;
 	B =  (RGB 	     & 0xFF) * pct /100;
@@ -61,7 +64,7 @@ void _colourNleds(uint8_t who, uint8_t width, uint8_t R,uint8_t G, uint8_t B)
 {
 	assert(who < LEDS_NUM);
 	assert(who + width < LEDS_NUM);
-	bStopToggle = true;
+	bStopLedBarToggle = true;
 	
 	for (int i = who; i < who + width; i++) {
 		ledsBuff[i].setRGB(R, G, B);
@@ -156,7 +159,8 @@ void _setup_lightbar(void)
 	if (bInit == false)
 	{
 		bInit = true;
-		#if defined(ARDUINO_M5STACK_CORE2)
+		//              arduino                             platformio
+		#if defined(ARDUINO_M5STACK_CORE2) || defined(ARDUINO_M5STACK_Core2)
 			FastLED.addLeds<SK6812, LEDS_PIN>(ledsBuff, LEDS_NUM);	
 			FastLED.setBrightness(50); // 0-255
 			Serial.printf("%s: taking GPIO%d  !!!!\n",__FUNCTION__, LEDS_PIN);

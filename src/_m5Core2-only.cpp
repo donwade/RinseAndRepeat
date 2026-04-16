@@ -81,6 +81,23 @@ void _lclear(void)
 //--------------------------------------------------
 static const gpio_num_t SDCARD_CSPIN = GPIO_NUM_4;
 #include <SD.h>
+#include "pretty.h"
+
+//-------------------------------------------------------------
+
+bool _setup_SD(void) // return true = BAD! 
+{
+	static bool bInited = false;
+	bool ok;
+	if (!bInited)
+	{
+		bInited = true;
+		ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
+		Serial.printf(FG_YELLOW "SD card is %s READY\n", ok ? "NOT":"");
+	}
+	return ok;
+}
+
 
 //-------------------------------------------------------------
 void _setup_M5(void)
@@ -98,10 +115,8 @@ void _setup_M5(void)
 
 	M5.Speaker.setAllChannelVolume(70);
 
-
-    bool ok = SD.begin(SDCARD_CSPIN, SPI, 8000000);
-	Serial.printf("SD card is %s READY\n", ok? "NOT":"");
-
+	Serial.printf("**** _setup_M5 does not do SD.begin() anymore\n");
+	Serial.printf("call _setup_SD AFTER all spi devices claim their access\n");
 
 	_lfillRect(0, 0, 50, 50, 0x0000FF);
 	delay(2000);

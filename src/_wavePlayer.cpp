@@ -5,6 +5,7 @@
 #include <cppQueue.h>
 
 #include <esp_log.h>
+#include "_m5Core2-only.h"
 
 #define LINE Serial.printf("%s:%d\n", __FUNCTION__, __LINE__)
 
@@ -153,6 +154,7 @@ static cppQueue playlistQ(MAX_FILENAME_LEN, MAX_FILES_QUEUED, FIFO);
 void _wavPlayerTask(void *NOTUSED)
 {
 	char playThisFile[MAX_FILENAME_LEN+1];
+	_setup_SD();
 	
 	while (true)
 	{
