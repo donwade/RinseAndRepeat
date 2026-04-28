@@ -36,11 +36,13 @@ void _setup_ota(void)
     // done elsewhere  M5.begin();
 
     M5.Lcd.printf("SSID %s\n", ssid);
-    WiFi.begin(ssid, password);  // Connect wifi and return connection status.
 
-    while (WiFi.status() != WL_CONNECTED) {
-            delay(1000);
-        M5.Lcd.print(".");
+    for (int i = 0; i < 8; i++)
+    {
+        WiFi.begin(ssid, password);  // Connect wifi and return connection status.
+        if(WiFi.status() == WL_CONNECTED) break;
+        M5.Lcd.printf ("wifi %d of 8 tries\n", i);
+        delay(1000);
     }
     
     //M5.Lcd.println();
