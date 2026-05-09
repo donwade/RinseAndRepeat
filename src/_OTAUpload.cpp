@@ -61,6 +61,9 @@ void _setup_ota(void)
 	M5.Lcd.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
 				 baseMac[0], baseMac[1], baseMac[2],
 				 baseMac[3], baseMac[4], baseMac[5]);
+	Serial.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
+				 baseMac[0], baseMac[1], baseMac[2],
+				 baseMac[3], baseMac[4], baseMac[5]);
 	}
 	
 	bigMacLo=baseMac[5]       | baseMac[4] <<  8 | 
@@ -71,7 +74,8 @@ void _setup_ota(void)
 	// overide hostname based on MAC
 	if (bigMacLo == 0x84A7024C ) strcpy (hName, "YELLOW");
 	if (bigMacLo == 0xA0D4CB8C ) strcpy (hName, "BLACK");
-
+    if (bigMacLo == 0x0fdfb2e0 ) strcpy (hName, "GOLD");
+    
     ArduinoOTA.setHostname(hName);
     //ArduinoOTA.setPassword("666666");
 
