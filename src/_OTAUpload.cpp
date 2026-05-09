@@ -22,8 +22,7 @@
 #endif
 
 #if !defined(MY_SSID)
-const char* ssid     = "ignite wifi";
-const char* password = "DEADBEEF04";
+ #error provide ssid and password
 #else
 static const char* ssid     = MY_SSID;
 static const char* password = MY_SSID_PASSWORD;
