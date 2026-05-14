@@ -1,3 +1,8 @@
+#ifndef __M5CORE2
+#define __M5CORE2
+
+#include <M5Unified.h>
+
 //#define setCursor(...) M5.Lcd.setCursor(__VA_ARGS__)
 //#define print(...) M5.Lcd.print(__VA_ARGS__)
 
@@ -24,4 +29,5 @@ extern bool _setup_SD(void);
 
 
 
+#endif
 
