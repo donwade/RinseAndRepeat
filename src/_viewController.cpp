@@ -4,6 +4,7 @@
 #include "_viewController.h"
 #include "_watchdogs.h"
 #include "_RTC.h"
+#include "pretty.h"
 
 #define LEDS_PIN 25
 #define LEDS_NUM 10
@@ -231,9 +232,11 @@ int  _cprintf(uint32_t color, uint8_t lineNo, const char *format, ...)
 	va_list args;
 	va_start(args, format);
 	char buffer[40];
+	int16_t eLen;
 	
-	vsnprintf(buffer, sizeof(buffer)-1, format, args);
-
+	eLen = vsnprintf(buffer, sizeof(buffer)-1, format, args);
+	assert(eLen < sizeof(buffer));
+	
 	xSemaphoreTake(displayMutex, portMAX_DELAY);
 	
 	_lsetTextColor(color, _BLACK);
@@ -257,6 +260,8 @@ int  _cprintf(uint32_t color, uint8_t lineNo, const char *format, ...)
 	_lsetTextColor(_WHITE, _BLACK);
 
 	xSemaphoreGive(displayMutex);	
+
+	// DEBUG Serial.printf(FG_GREEN "[%d] = %s\n" FG_DONE, lineNo, buffer);
 	va_end(args);
 	return 0;
 }
