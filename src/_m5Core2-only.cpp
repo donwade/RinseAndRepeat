@@ -102,7 +102,7 @@ bool _setup_SD(void) // return true = BAD!
 //-------------------------------------------------------------
 void _setup_M5(void)
 {
-	if (!Serial) Serial.begin(921600);
+	if (!Serial) Serial.begin(115200);
 
 	M5.begin();
 	M5.Power.setExtOutput(true);  // enable external bus
