@@ -4,8 +4,7 @@
 //---------------------------
 #include <TinyGPS++.h>
 #include <MultipleSatellite.h>
-#include "pretty.h"
-#include <_viewController.h>
+#include <_GPS.h>
 
 static const int RXPin = 13, TXPin = 27;
 static const uint32_t GPSBaud = 115200;
@@ -26,69 +25,190 @@ void _setup_GPS(void)
 
     String version = gpsM5.getGNSSVersion();
 	Serial.printf("GNSS SW=%s\r\n", version.c_str());
+
+	Serial.printf("waiting for first fix from GPS\n");
+	
 }
 
+
+static struct kitchenSink_s
+{
+	double doubleLat, doubleLng;
+	uint32_t   ageFix;
+	uint32_t   last;
+	double firstLat, firstLng;
+	uint16_t yearNow;
+	uint8_t  monthNow;
+	uint8_t  dayNow;
+	uint8_t  hourNow;
+	uint8_t  minuteNow;
+	uint8_t  secondNow;
+	double distanceToFirstFix;	
+	double courseToFirstFix;
+	uint32_t epochTimeNow;
+	uint8_t numSats;
+	float kmph;
+	float deg;
+	float altitudeM;
+	float hdop;
+} kitchenSink;
+
+
 bool bFirstFix = false;
-double FIRST_LAT = 0.0, FIRST_LNG = 0.0;
-double doubleLat, doubleLng;
 
 
 #define CalendarYrToTm(Y) ((Y) - 1970)
 
-uint16_t yearNow;
-uint8_t  monthNow;
-uint8_t  dayNow;
-uint8_t  hourNow;
-uint8_t  minuteNow;
-uint8_t  secondNow;
-uint32_t epochTimeNow;
-
 uint32_t getEpochTimeFromGPS() 
 {
     // 1. Extract individual pieces of date/time from TinyGPS++
-    yearNow 	= gpsM5.date.year();
-    monthNow 	= gpsM5.date.month();
-    dayNow 	= gpsM5.date.day();
-    hourNow 	= gpsM5.time.hour();
-    minuteNow  = gpsM5.time.minute();
-    secondNow  = gpsM5.time.second();
+    kitchenSink.yearNow 	= gpsM5.date.year();
+    kitchenSink.monthNow 	= gpsM5.date.month();
+    kitchenSink.dayNow 	    = gpsM5.date.day();
+    kitchenSink.hourNow 	= gpsM5.time.hour();
+    kitchenSink.minuteNow   = gpsM5.time.minute();
+    kitchenSink.secondNow   = gpsM5.time.second();
 
     // 2. Format into the standard tmElements_t structure
     // Note: Weekday can be calculated or set to 0 as a dummy value
 
     tmElements_t tm;
     
-    tm.Year 	= CalendarYrToTm(yearNow); // Converts e.g., 2026 to 56
-    tm.Month 	= monthNow;
-    tm.Day 		= dayNow;
-    tm.Hour 	= hourNow;
-    tm.Minute 	= minuteNow;
-    tm.Second 	= secondNow;
+    tm.Year 	= CalendarYrToTm(kitchenSink.yearNow); // Converts e.g., 2026 to 56
+    tm.Month 	= kitchenSink.monthNow;
+    tm.Day 		= kitchenSink.dayNow;
+    tm.Hour 	= kitchenSink.hourNow;
+    tm.Minute 	= kitchenSink.minuteNow;
+    tm.Second 	= kitchenSink.secondNow;
 
     // 3. Convert to UNIX epoch time (seconds since 1/1/1970)
-    epochTimeNow = (uint32_t) makeTime(tm);
+    kitchenSink.epochTimeNow = (uint32_t) makeTime(tm);
 
-    //Serial.print("Current Epoch Time: ");
-    //Serial.println(epochTime);
+    Serial.print("Current Epoch Time: ");
+    Serial.println(kitchenSink.epochTimeNow);
    
-    return epochTimeNow;
+    return kitchenSink.epochTimeNow ;
     
 }
 
+#define RATE 1000
+static uint32_t slowdown = millis() + RATE;
 
-void _loop_GPS(void)
+
+void _refresh_GPS(void)
 {
-  static RawDegrees rawLat;
-  static RawDegrees rawLng;
-  static uint32_t   ageFix;
-  static uint32_t   last;
+  RawDegrees rawLat;
+  RawDegrees rawLng;
+  uint32_t   ageFix;
+  uint32_t   safety;
   
-  static uint8_t numSats;
 
   uint8_t atLine = 1;
   
+  while(millis() < slowdown) {delay(100);};  // dont ask faster than allow or no data.
+  slowdown = millis() + RATE;
+  
   gpsM5.updateGPS();
 
+  
+  // Dispatch incoming characters
+  //while (gpsM5.available() > 0)
+  //  gpsM5.encode(gpsM5.read());
+
+  // epoch is always sent from first found gpsM5.
+  uint32_t epTime = getEpochTimeFromGPS();
+  
+  ageFix = gpsM5.location.age();
+  
+  if (gpsM5.location.isUpdated())
+  {
+    rawLat = gpsM5.location.rawLat();
+	kitchenSink.doubleLat = (double)(rawLat.negative ? -rawLat.deg:rawLat.deg) + rawLat.billionths/1000000000.;
+
+    rawLng= gpsM5.location.rawLng();
+    kitchenSink.doubleLng = (double)(rawLng.negative ? -rawLng.deg:rawLng.deg) + rawLng.billionths/1000000000.;
+
+	if (!bFirstFix)
+	{
+		kitchenSink.firstLat  = gpsM5.location.lat();
+		kitchenSink.firstLng = gpsM5.location.lng();
+		bFirstFix = true;
+	}
+  }
+
+  else if (gpsM5.date.isUpdated())
+  {
+  }
+
+  else if (gpsM5.time.isUpdated())
+  {
+  	// gpsM5.time params are NOT filled in until sat lock.
+  	// could take some time. to get these ones.
+  	
+    Serial.print(F("TIME       Fix Age="));
+    Serial.print(gpsM5.time.age());
+    Serial.print(F("ms Raw="));
+    Serial.print(gpsM5.time.value());
+    Serial.print(F(" Hour="));
+    Serial.print(gpsM5.time.hour());
+    Serial.print(F(" Minute="));
+    Serial.print(gpsM5.time.minute());
+    Serial.print(F(" Second="));
+    Serial.print(gpsM5.time.second());
+    Serial.print(F(" Hundredths="));
+    Serial.println(gpsM5.time.centisecond());
+  }
+  else if (gpsM5.speed.isUpdated())
+  {
+    kitchenSink.kmph = gpsM5.speed.kmph();
+    Serial.println(kitchenSink.kmph);
+  }
+
+  else if (gpsM5.course.isUpdated())
+  {
+    kitchenSink.deg = gpsM5.course.deg();
+  }
+
+  else if (gpsM5.altitude.isUpdated())
+  {
+    kitchenSink.altitudeM = gpsM5.altitude.meters();
+  }
+
+  else if (gpsM5.satellites.isUpdated())
+  {
+    kitchenSink.numSats = gpsM5.satellites.value();
+  }
+
+  else if (gpsM5.hdop.isUpdated())
+  {
+    kitchenSink.hdop = gpsM5.hdop.hdop();
+  }
+  else if (millis() - safety > 1000)
+  {
+	  safety = millis();
+	  if (gpsM5.charsProcessed() < 10)
+		Serial.println(F("WARNING: No GPS data.  Check wiring."));
+  }
+}
+
+
+
+void _test_GPS(void)
+{
+  RawDegrees rawLat;
+  RawDegrees rawLng;
+  uint32_t   ageFix;
+  uint32_t   last;
+  
+
+  uint8_t atLine = 1;
+  
+  while(millis() < slowdown) {delay(100);};  // dont ask faster than allow or no data.
+  slowdown = millis() + RATE;
+  
+  gpsM5.updateGPS();
+
+  
   // Dispatch incoming characters
   //while (gpsM5.available() > 0)
   //  gpsM5.encode(gpsM5.read());
@@ -104,33 +224,26 @@ void _loop_GPS(void)
     Serial.printf ("Fix Age= %d\n", gpsM5.location.age());
     
     rawLat = gpsM5.location.rawLat();
-	doubleLat = (double)(rawLat.negative ? -rawLat.deg:rawLat.deg) + rawLat.billionths/1000000000.;
+	kitchenSink.doubleLat = (double)(rawLat.negative ? -rawLat.deg:rawLat.deg) + rawLat.billionths/1000000000.;
 
-    Serial.printf("    latD: %+15.13lf %c%d.%d short= %f\n", 
-    			    doubleLat,
-    				rawLat.negative ? '-' : '+',
-    				rawLat.deg,
-    				rawLat.billionths,
+    Serial.printf("    latD: %+15.10lf short= %f\n", 
+    			    kitchenSink.doubleLat,
     				gpsM5.location.lat());
 
 
     
     rawLng= gpsM5.location.rawLng();
-    doubleLng = (double)(rawLng.negative ? -rawLng.deg:rawLng.deg) + rawLng.billionths/1000000000.;
+    kitchenSink.doubleLng = (double)(rawLng.negative ? -rawLng.deg:rawLng.deg) + rawLng.billionths/1000000000.;
 
-    Serial.printf("    lngD: %+15.13lf %c%d.%d short= %f\n",
-    				doubleLng,
-    				rawLng.negative ? '-' : '+',
-    				rawLng.deg,
-    				rawLng.billionths,
+    Serial.printf("    lngD: %+15.10lf short= %f\n",
+    				kitchenSink.doubleLng,
     				gpsM5.location.lng());
-    Serial.println("---------------------------------------------");
     
 
 	if (!bFirstFix)
 	{
-		FIRST_LAT = gpsM5.location.lat();
-		FIRST_LNG = gpsM5.location.lng();
+		kitchenSink.firstLat  = gpsM5.location.lat();
+		kitchenSink.firstLng = gpsM5.location.lng();
 		bFirstFix = true;
 	}
   }
@@ -180,7 +293,8 @@ void _loop_GPS(void)
     Serial.print(F(" m/s="));
     Serial.print(gpsM5.speed.mps());
     Serial.print(F(" km/h="));
-    Serial.println(gpsM5.speed.kmph());
+    kitchenSink.kmph = gpsM5.speed.kmph();
+    Serial.println(kitchenSink.kmph);
   }
 
   else if (gpsM5.course.isUpdated())
@@ -191,6 +305,8 @@ void _loop_GPS(void)
     Serial.print(gpsM5.course.value());
     Serial.print(F(" Deg="));
     Serial.println(gpsM5.course.deg());
+    kitchenSink.deg = gpsM5.course.deg();
+    Serial.println(kitchenSink.deg);
   }
 
   else if (gpsM5.altitude.isUpdated())
@@ -200,7 +316,9 @@ void _loop_GPS(void)
     Serial.print(F("ms Raw="));
     Serial.print(gpsM5.altitude.value());
     Serial.print(F(" Meters="));
-    Serial.print(gpsM5.altitude.meters());
+    kitchenSink.altitudeM = gpsM5.altitude.meters();
+    Serial.print(kitchenSink.altitudeM);
+    
     Serial.print(F(" Miles="));
     Serial.print(gpsM5.altitude.miles());
     Serial.print(F(" KM="));
@@ -214,8 +332,8 @@ void _loop_GPS(void)
     Serial.print(F("SATELLITES Fix Age="));
     Serial.print(gpsM5.satellites.age());
     Serial.print(F("ms Value="));
-    numSats = gpsM5.satellites.value();
-    Serial.println(numSats);
+    kitchenSink.numSats = gpsM5.satellites.value();
+    Serial.println(kitchenSink.numSats);
   }
 
   else if (gpsM5.hdop.isUpdated())
@@ -225,32 +343,34 @@ void _loop_GPS(void)
     Serial.print(F("ms raw="));
     Serial.print(gpsM5.hdop.value());
     Serial.print(F(" hdop="));
-    Serial.println(gpsM5.hdop.hdop());
+    kitchenSink.hdop = gpsM5.hdop.hdop();
+    Serial.println(kitchenSink.hdop);
   }
   else if (millis() - last > 1000)
   {
     Serial.println();
     if (gpsM5.location.isValid())
     {
-      double distanceToFirstFix =
+      kitchenSink.distanceToFirstFix =
         TinyGPSPlus::distanceBetween(
           gpsM5.location.lat(),
           gpsM5.location.lng(),
-          FIRST_LAT, 
-          FIRST_LNG);
-      double courseToFirstFix =
+          kitchenSink.firstLat, 
+          kitchenSink.firstLng);
+          
+      kitchenSink.courseToFirstFix =
         TinyGPSPlus::courseTo(
           gpsM5.location.lat(),
           gpsM5.location.lng(),
-          FIRST_LAT, 
-          FIRST_LNG);
+          kitchenSink.firstLat, 
+          kitchenSink.firstLng);
 
       Serial.print(F("JITTER     Distance="));
-      Serial.print(distanceToFirstFix, 6);
+      Serial.print(kitchenSink.distanceToFirstFix, 6);
       Serial.print(F(" m Course-to="));
-      Serial.print(courseToFirstFix, 6);
+      Serial.print(kitchenSink.courseToFirstFix, 6);
       Serial.print(F(" degrees ["));
-      Serial.print(TinyGPSPlus::cardinal(courseToFirstFix));
+      Serial.print(TinyGPSPlus::cardinal(kitchenSink.courseToFirstFix));
       Serial.println(F("]"));
     }
 
@@ -268,28 +388,37 @@ void _loop_GPS(void)
 
     last = millis();
     Serial.println();
+   }
+}
 
-   	_cprintf(_GREEN, atLine++, "%c%d.%d", 
-  		rawLat.negative ? '-' : '+',
-	    rawLat.deg,
-        rawLat.billionths
-        );
-    _cprintf(_GREEN, atLine++, "%c%d.%d",
-		rawLng.negative ? '-' : '+',
-  		rawLng.deg,
-  		rawLng.billionths
-		); 
-  
+
+#define SHOW2LCD 1
+#if SHOW2LCD
+#include "pretty.h"
+#include <_viewController.h>
+
+
+void _GPS2LCD(void)
+{
+	uint8_t atLine = 1;
+	
+	_cprintf(_GREEN, atLine++, "%+lf",kitchenSink.doubleLat);
+ 	_cprintf(_GREEN, atLine++, "%+lf",kitchenSink.doubleLng);
+   
 	_cprintf(_GREEN, atLine++, "%s", autoFILENAME("", "ran"));
-	_cprintf(_CYAN,  atLine++, "epoch=%d", epTime);
-	_cprintf(_CYAN,  atLine++, "%s", getDDMMYY(epTime)); 
+	_cprintf(_CYAN,  atLine++, "epoch=%d", kitchenSink.epochTimeNow);
+	_cprintf(_CYAN,  atLine++, "%s", getDDMMYY(kitchenSink.epochTimeNow)); 
 
 	// gps_time_hr/min/sec is NOT available until sat lock
 	// use epoch time instead_
 
-	_cprintf(_YELLOW, atLine++, "%s", getHHMMSSapm(epTime));
+	_cprintf(_YELLOW, atLine++, "%s", getHHMMSSapm(kitchenSink.epochTimeNow));
 	
-    _cprintf(_YELLOW, atLine++, "#sats %2d age=%d", numSats, ageFix);
-    _cprintf(_RED,atLine++,  "END");
-   }
+	_cprintf(_YELLOW, atLine++, "#sats %2d", kitchenSink.numSats);
+	_cprintf(_RED,atLine++,  "END");
 }
+#else
+void _GPS2LCD(void){}
+
+#endif
+
