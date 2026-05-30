@@ -8,6 +8,8 @@
 // gps may require cold start assistance from
 // the RTC. So we put this routine in the GPS file.
 
+static const char *TAG="RTC";
+
 
 //-----------------------------------------------------------------
 char *pDateTimeString() 
@@ -113,6 +115,10 @@ void _setup_RTC(void)
 		day(t), month(t), year(t));
 		
 
+	}
+	else
+	{
+		M5_LOGW("time not available from NTP, no wifi");
 	}
 
 	// now NTP could have failed. Recover from the RTC clock chip.
