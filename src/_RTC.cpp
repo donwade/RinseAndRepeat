@@ -85,6 +85,9 @@ static void setRtcHW(uint8_t hr, uint8_t min, uint8_t sec, uint8_t day, uint8_t 
 		
 		M5.Rtc.setTime(&TimeStruct);
 		M5.Rtc.setDate(&DateStruct);
+
+        M5_LOGI("RTC-utc set %02d/%02d/%d %d:%02d:%2d", day,month,year,hr,min,sec);
+
 }
 
 //-------------------------------------------------------------
