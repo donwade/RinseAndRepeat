@@ -122,8 +122,8 @@ void _setup_M5(void)
 	delay(2000);
 
 
-	_setup_RTC();
-	_setup_ota();		
+	//_setup_ota();		
+	_setup_RTC();         //setup_RTC calls setup OTA
 	//_setup_button();
 
 }

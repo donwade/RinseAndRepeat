@@ -59,13 +59,16 @@ void _setup_ota(void)
  53 } wl_status_t;
 
 */
+    #define STOP 254
+    uint32_t snore = millis();
 
-    while(true)
+    while(millis() < snore + 4000)
     {
         uint32_t foo = WiFi.status();
         M5_LOGI("wifi wait for disc or stop ret = %d ", foo);
-        if (foo == WL_DISCONNECTED || foo == WL_STOPPED) break;
-        delay(1000);
+        //if (foo == WL_DISCONNECTED || foo == WL_STOPPED) break;
+        if (foo == WL_DISCONNECTED || foo == STOP) break;
+        delay(500);
     }
 
     M5_LOGI("wifi stopped, bringing back up ...");
