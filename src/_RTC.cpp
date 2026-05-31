@@ -1,5 +1,7 @@
 #include <M5Unified.h>
 #include <WiFi.h>
+#include <_OTAUpload.h>
+
 #include "TimeLib.h"
 #include "time.h"
 
@@ -94,6 +96,13 @@ void _setup_RTC(void)
     const long gmtOffset_sec = 0;
     const int daylightOffset_sec = 0;
 
+    if ( WiFi.status() != WL_CONNECTED)
+    {
+        M5_LOGI("Wifi not connected apparently");
+        _setup_ota();   // may as well start wifi thru OTA
+    }
+
+    // any luck on connect? 
 	if ( WiFi.status() == WL_CONNECTED)
 	{
 		configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);

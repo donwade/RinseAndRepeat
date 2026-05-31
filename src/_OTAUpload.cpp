@@ -33,37 +33,65 @@ static const char* password = MY_SSID_PASSWORD;
 void _setup_ota(void) 
 {
     // done elsewhere  M5.begin();
+    int i;
 
     M5.Lcd.printf("SSID %s\n", ssid);
 
-    for (int i = 0; i < 8; i++)
+   
+    WiFi.begin(); // you have to start Wifi to turn it OFF (huh?)
+    WiFi.setAutoReconnect(false); 
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    delay(1000);
+
+/*
+/home/dwade/.arduino15/packages/esp32/hardware/esp32/3.3.8/libraries/WiFi/src/WiFiType.h:49:
+ 43 typedef enum {
+ 44   WL_NO_SHIELD = 255,  // for compatibility with WiFi Shield library
+ 45   WL_STOPPED = 254,
+ 46   WL_IDLE_STATUS = 0,
+ 47   WL_NO_SSID_AVAIL = 1,
+ 48   WL_SCAN_COMPLETED = 2,
+ 49   WL_CONNECTED = 3,
+ 50   WL_CONNECT_FAILED = 4,
+ 51   WL_CONNECTION_LOST = 5,
+ 52   WL_DISCONNECTED = 6
+ 53 } wl_status_t;
+
+*/
+
+    while(true)
     {
-        WiFi.begin(ssid, password);  // Connect wifi and return connection status.
-        if(WiFi.status() == WL_CONNECTED) break;
-        M5.Lcd.printf ("wifi %d of 8 tries\n", i);
+        uint32_t foo = WiFi.status();
+        M5_LOGI("wifi wait for disc or stop ret = %d ", foo);
+        if (foo == WL_DISCONNECTED || foo == WL_STOPPED) break;
         delay(1000);
     }
-    
-    //M5.Lcd.println();
-    //M5.Lcd.print("Online:");
-    //M5.Lcd.println(WiFi.SSID());  // Output Network name.  输出网络名称
-    M5.Lcd.print("IP: ");
-    M5.Lcd.println(WiFi.localIP());  // Output IP Address.  输出IP地址
+
+    M5_LOGI("wifi stopped, bringing back up ...");
+
+    WiFi.begin(ssid, password);  // Connect wifi and return connection status.
+    for (int i = 0; i < 8; i++)
+    {
+        uint32_t foo;
+        foo = WiFi.status();
+        M5_LOGW("wait for wifi %d of 8 tries err = %d\r", i, foo);
+        if (foo == WL_CONNECTED) break;
+        delay(1000);
+    }
+
+    String temp = WiFi.localIP().toString();
+    M5_LOGW("IP: %s ", temp.c_str());
 
 	uint8_t baseMac[6];
 	uint32_t bigMacLo;
 	
 	esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
 
-    M5.Lcd.printf("%s %s\n", __DATE__,__TIME__);
-
-	if (ret == ESP_OK) {
-	M5.Lcd.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
-				 baseMac[0], baseMac[1], baseMac[2],
-				 baseMac[3], baseMac[4], baseMac[5]);
-	Serial.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
-				 baseMac[0], baseMac[1], baseMac[2],
-				 baseMac[3], baseMac[4], baseMac[5]);
+	if (ret == ESP_OK) 
+    {
+	    //M5.Lcd.printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+	    M5_LOGW("MAC %02x:%02x:%02x:%02x:%02x:%02x\n", baseMac[0], baseMac[1], baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
 	}
 	
 	bigMacLo=baseMac[5]       | baseMac[4] <<  8 | 
@@ -75,13 +103,15 @@ void _setup_ota(void)
 	if (bigMacLo == 0x84A7024C ) strcpy (hName, "YELLOW");
 	if (bigMacLo == 0xA0D4CB8C ) strcpy (hName, "BLACK");
     if (bigMacLo == 0x0fdfb2e0 ) strcpy (hName, "GOLD");
-    
+    if (bigMacLo == 0x0fdfbae0 ) strcpy (hName, "SILVER");
+
     ArduinoOTA.setHostname(hName);
     //ArduinoOTA.setPassword("666666");
 
 	M5.Lcd.print("Hostname:");
 	M5.Lcd.println(hName);
-    
+    M5_LOGW("Hostname: %s", hName);
+
     ArduinoOTA.begin();
     //M5.Lcd.println("OTA ready!");
 }
