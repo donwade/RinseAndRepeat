@@ -102,6 +102,13 @@ bool _setup_SD(void) // return true = BAD!
 //-------------------------------------------------------------
 void _setup_M5(void)
 {
+
+	m5::M5Unified::config_t cfg = M5.config();
+	cfg.internal_spk = true; 
+	
+	M5.begin(cfg); 
+	M5.Speaker.begin();
+
 	if (!Serial) Serial.begin(115200);
 
 	M5.begin();
@@ -113,8 +120,11 @@ void _setup_M5(void)
 	// confusing. this sets font for buttons
 	M5.Lcd.setFont(WIDGET_FONT);
 
-	M5.Speaker.setAllChannelVolume(70);
-
+	//M5.Speaker.setAllChannelVolume(100); // messes volume up.
+	
+	M5.Speaker.setVolume(100); // Set max volume
+	M5.Speaker.tone(2000, 100);
+	
 	Serial.printf("**** _setup_M5 does not do SD.begin() anymore\n");
 	Serial.printf("call _setup_SD AFTER all spi devices claim their access\n");
 
