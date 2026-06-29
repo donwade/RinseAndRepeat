@@ -32,9 +32,21 @@ static const char* password = MY_SSID_PASSWORD;
 
 void _setup_ota(void) 
 {
+    static bool bSetupDone = false;
+
+    if (bSetupDone) 
+    {
+        M5_LOGW("ota+wifi already setup");
+        return;
+    }
+    bSetupDone = true;
+
+    M5_LOGW("setting up ota+wifi");
+
     // done elsewhere  M5.begin();
     int i;
-
+    
+    
     M5.Lcd.printf("SSID %s\n", ssid);
 
    
