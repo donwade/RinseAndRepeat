@@ -53,21 +53,15 @@ void setup_onPwrDn(void)
 
 
 static pfnv pLongPressCall = NULL;
-pfnv setLongResetPressCB(pfnv userCB)
+void setLongPressCB(pfnv userCB)
 {
-    pfnv ret = pLongPressCall;
-
-    pLongPressCall = userCB;
-    return ret;
+     pLongPressCall = userCB;
 }
 
 static pfnv pShortPressCall = NULL;
-pfnv setShortPressCB(pfnv userCB)
+void setShortPressCB(pfnv userCB)
 {
-    pfnv ret = pShortPressCall;
-
     pShortPressCall = userCB;
-    return ret;
 }
 
 
