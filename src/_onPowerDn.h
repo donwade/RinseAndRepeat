@@ -6,4 +6,5 @@ void setup_onPwrDn(void);
 pfnv setLongResetPressCB(pfnv userCB);
 void loop_onPwrDn();
 pfnv setLongResetPressCB(pfnv userCB);
+pfnv setShortRestPressCB(pfnv userCB);
 

@@ -52,17 +52,17 @@ void setup_onPwrDn(void)
 }
 
 
-static pfnv pPowerDownCall = NULL;
+static pfnv pLongPressCall = NULL;
 pfnv setLongResetPressCB(pfnv userCB)
 {
-    pfnv ret = pPowerDownCall;
+    pfnv ret = pLongPressCall;
 
-    pPowerDownCall = userCB;
+    pLongPressCall = userCB;
     return ret;
 }
 
 static pfnv pShortPressCall = NULL;
-pfnv setShortRestPressCB(pfnv userCB)
+pfnv setShortPressCB(pfnv userCB)
 {
     pfnv ret = pShortPressCall;
 
@@ -90,15 +90,17 @@ void loop_onPwrDn()
 
             // 1. PLACE YOUR DATA SAVING CODE HERE
             // e.g., close files, write to flash, disconnect Wi-Fi
-            if (pPowerDownCall)
+            if (pLongPressCall)
             {
-                pPowerDownCall();
+                Serial.printf(FG_BGREEN "calling long press\n" FG_DONE);
+                pLongPressCall();
             }
             else
             {
-                Serial.printf(FG_BYELLOW "no powerdown handler registered\n" FG_DONE);
-                Serial.println("Data not saved. Powering off now.");
+                Serial.printf(FG_BYELLOW "no long press handler registered\n" FG_DONE);
             }
+
+			Serial.println("Powering off now.");
 
             // 2. Clear the interrupt flags so it doesn't loop
             Wire1.beginTransmission(0x34);
@@ -106,7 +108,7 @@ void loop_onPwrDn()
             Wire1.write(0xFF); // Writing 1s clears the flags
             Wire1.endTransmission();
 
-            delay(2000);
+            delay(500);
 
             // 3. Manually tell the PMIC to turn off power
             M5.Power.powerOff();
@@ -116,8 +118,16 @@ void loop_onPwrDn()
         // short press is lower priority than long press.
         if (status & 02)
         {
-            Serial.println(FG_BYELLOW "hello shortie" FG_DONE);
-
+        	if (pShortPressCall)
+        	{
+				Serial.println(FG_BGREEN "calling short press" FG_DONE);
+				pShortPressCall();
+        	}
+        	else
+        	{
+                Serial.printf(FG_BYELLOW "no short press handler registered\n" FG_DONE);
+        	}
+	
             // 2. Clear the interrupt flags so it doesn't loop
             Wire1.beginTransmission(0x34);
             Wire1.write(0x46);
