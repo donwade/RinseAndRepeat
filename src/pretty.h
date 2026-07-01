@@ -1,4 +1,3 @@
-
 #define IS_BLACK 0
 #define IS_RED   1
 #define IS_GREEN 2
@@ -11,10 +10,10 @@
 #define IS_FOREGROUND 30
 #define IS_BACKGROUND 40
 
-#define IS_RESET	    0
-#define IS_BOLD 	    1
-#define IS_DIM  	    2
-#define IS_Underline	4
+#define IS_RESET            0
+#define IS_BOLD             1
+#define IS_DIM              2
+#define IS_Underline    4
 
 #define FG_DONE "\033[0m"
 
@@ -90,7 +89,5 @@
 #define BG_FCYAN       "\033[3;46m"
 #define BG_FWHITE      "\033[3;47m"
 
-#define RGBto565(r, g, b) (  ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)) 
-#define RGB32toRGB565(c32) RGBto565( (c32>>16) & 0xFF , (c32>>8) & 0xFF, (c32) & 0xFF)
-
-
+#define RGBto565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
+#define RGB32toRGB565(c32) RGBto565((c32 >> 16) & 0xFF, (c32 >> 8) & 0xFF, (c32) & 0xFF)
