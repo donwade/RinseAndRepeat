@@ -133,8 +133,8 @@ void _setup_M5(void)
 
     //M5.Speaker.setAllChannelVolume(100); // messes volume up.
 
-    M5.Speaker.setVolume(100);     // Set max volume
-    M5.Speaker.tone(2000, 100);
+    M5.Speaker.setVolume(100);      // Set max volume
+    // M5.Speaker.tone(2000, 100);  // no a reboot loop is so annoying
 
     Serial.printf("**** _setup_M5 does not do SD.begin() anymore\n");
     Serial.printf("call _setup_SD AFTER all spi devices claim their access\n");
