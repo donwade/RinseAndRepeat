@@ -76,7 +76,7 @@ void _setup_ota(void)
     while (millis() < snore + 4000)
     {
         uint32_t foo = WiFi.status();
-        M5_LOGI("wifi wait for disc or stop ret = %d ", foo);
+        M5_LOGD("wifi wait for disc or stop ret = %d ", foo);
 
         //if (foo == WL_DISCONNECTED || foo == WL_STOPPED) break;
         if (foo == WL_DISCONNECTED || foo == STOP)
@@ -85,7 +85,7 @@ void _setup_ota(void)
         delay(500);
     }
 
-    M5_LOGI("wifi stopped, bringing back up ...");
+    M5_LOGD("wifi stopped, bringing back up ...");
 
     WiFi.begin(ssid, password);  // Connect wifi and return connection status.
 
@@ -93,7 +93,7 @@ void _setup_ota(void)
     {
         uint32_t foo;
         foo = WiFi.status();
-        M5_LOGW("wait for wifi %d of 8 tries err = %d\r", i, foo);
+        M5_LOGD("wait for wifi %d of 8 tries err = %d\r", i, foo);
 
         if (foo == WL_CONNECTED)
             break;
